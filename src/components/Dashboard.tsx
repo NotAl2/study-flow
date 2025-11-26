@@ -3,11 +3,11 @@ import { BookOpen, Clock, CheckSquare, Calendar, FileText, Flame } from "lucide-
 import SubjectProgress from "./SubjectProgress";
 import PomodoroTimer from "./PomodoroTimer";
 import TaskList from "./TaskList";
-import Timetable from "./Timetable";
+import CalendarComponent from "./Calendar";
 import Notes from "./Notes";
 import StreakTracker from "./StreakTracker";
 
-type Tab = "overview" | "subjects" | "timer" | "tasks" | "timetable" | "notes";
+type Tab = "overview" | "subjects" | "timer" | "tasks" | "calendar" | "notes";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
@@ -17,7 +17,7 @@ const Dashboard = () => {
     { id: "subjects" as Tab, label: "Subjects", icon: BookOpen },
     { id: "timer" as Tab, label: "Timer", icon: Clock },
     { id: "tasks" as Tab, label: "Tasks", icon: CheckSquare },
-    { id: "timetable" as Tab, label: "Timetable", icon: Calendar },
+    { id: "calendar" as Tab, label: "Calendar", icon: Calendar },
     { id: "notes" as Tab, label: "Notes", icon: FileText },
   ];
 
@@ -69,7 +69,7 @@ const Dashboard = () => {
           {activeTab === "subjects" && <SubjectProgress />}
           {activeTab === "timer" && <PomodoroTimer />}
           {activeTab === "tasks" && <TaskList />}
-          {activeTab === "timetable" && <Timetable />}
+          {activeTab === "calendar" && <CalendarComponent />}
           {activeTab === "notes" && <Notes />}
         </main>
       </div>
