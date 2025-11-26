@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, FileText } from "lucide-react";
+import { Plus, Trash2, FileText, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "./ui/context-menu";
 
 interface Note {
   id: string;
@@ -47,6 +53,19 @@ const Notes = () => {
     if (selectedNote?.id === id) setSelectedNote(null);
   };
 
+  const moveNote = (id: string, direction: "up" | "down") => {
+    const index = notes.findIndex((n) => n.id === id);
+    if (
+      (direction === "up" && index > 0) ||
+      (direction === "down" && index < notes.length - 1)
+    ) {
+      const newNotes = [...notes];
+      const swapIndex = direction === "up" ? index - 1 : index + 1;
+      [newNotes[index], newNotes[swapIndex]] = [newNotes[swapIndex], newNotes[index]];
+      setNotes(newNotes);
+    }
+  };
+
   return (
     <div className="grid gap-6 md:grid-cols-3">
       <div className="md:col-span-1 glass rounded-xl p-4 border border-border">
@@ -61,21 +80,38 @@ const Notes = () => {
         </div>
 
         <div className="space-y-2">
-          {notes.map((note) => (
-            <div
-              key={note.id}
-              onClick={() => setSelectedNote(note)}
-              className={`p-3 rounded-lg cursor-pointer transition-smooth ${
-                selectedNote?.id === note.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary hover:bg-secondary/80"
-              }`}
-            >
-              <p className="font-medium truncate">{note.title}</p>
-              <p className="text-xs opacity-70">
-                {new Date(note.createdAt).toLocaleDateString()}
-              </p>
-            </div>
+          {notes.map((note, index) => (
+            <ContextMenu key={note.id}>
+              <ContextMenuTrigger>
+                <div
+                  onClick={() => setSelectedNote(note)}
+                  className={`p-3 rounded-lg cursor-pointer transition-smooth ${
+                    selectedNote?.id === note.id
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary hover:bg-secondary/80"
+                  }`}
+                >
+                  <p className="font-medium truncate">{note.title}</p>
+                  <p className="text-xs opacity-70">
+                    {new Date(note.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuItem onClick={() => moveNote(note.id, "up")} disabled={index === 0}>
+                  <ChevronUp className="w-4 h-4 mr-2" />
+                  Move Up
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => moveNote(note.id, "down")} disabled={index === notes.length - 1}>
+                  <ChevronDown className="w-4 h-4 mr-2" />
+                  Move Down
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => deleteNote(note.id)} className="text-destructive">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           ))}
         </div>
       </div>
