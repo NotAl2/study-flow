@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar as CalendarIcon, Plus } from "lucide-react";
+import { Calendar as CalendarIcon, Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { Calendar as CalendarUI } from "./ui/calendar";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -18,6 +18,12 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Badge } from "./ui/badge";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "./ui/context-menu";
 
 interface CalendarEvent {
   id: string;
@@ -77,6 +83,36 @@ const Calendar = () => {
       setNewEventSubject("");
       setNewEventPriority("medium");
       setIsDialogOpen(false);
+    }
+  };
+
+  const deleteEvent = (id: string) => {
+    setEvents(events.filter((e) => e.id !== id));
+  };
+
+  const updateEventPriority = (id: string, priority: "low" | "medium" | "high") => {
+    setEvents(events.map((e) => (e.id === id ? { ...e, priority } : e)));
+  };
+
+  const moveEvent = (id: string, direction: "up" | "down") => {
+    const index = selectedDateEvents.findIndex((e) => e.id === id);
+    if (
+      (direction === "up" && index > 0) ||
+      (direction === "down" && index < selectedDateEvents.length - 1)
+    ) {
+      const allEventsOnDate = selectedDateEvents;
+      const swapIndex = direction === "up" ? index - 1 : index + 1;
+      
+      const event1 = allEventsOnDate[index];
+      const event2 = allEventsOnDate[swapIndex];
+      
+      if (event1.type === "event" && event2.type === "event") {
+        const newEvents = [...events];
+        const idx1 = newEvents.findIndex((e) => e.id === event1.id);
+        const idx2 = newEvents.findIndex((e) => e.id === event2.id);
+        [newEvents[idx1], newEvents[idx2]] = [newEvents[idx2], newEvents[idx1]];
+        setEvents(newEvents);
+      }
     }
   };
 
@@ -200,26 +236,54 @@ const Calendar = () => {
           </h3>
           {selectedDateEvents.length > 0 ? (
             <div className="space-y-2">
-              {selectedDateEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className={`p-3 rounded-lg border transition-smooth ${getPriorityColor(event.priority)}`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      <p className="font-medium">{event.name}</p>
-                      <p className="text-xs opacity-70">{event.subject}</p>
+              {selectedDateEvents.map((event, index) => (
+                <ContextMenu key={event.id}>
+                  <ContextMenuTrigger>
+                    <div
+                      className={`p-3 rounded-lg border transition-smooth ${getPriorityColor(event.priority)}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="font-medium">{event.name}</p>
+                          <p className="text-xs opacity-70">{event.subject}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <Badge variant="outline" className="text-xs">
+                            {event.type === "deadline" ? "Deadline" : "Event"}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {event.priority}
+                          </Badge>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <Badge variant="outline" className="text-xs">
-                        {event.type === "deadline" ? "Deadline" : "Event"}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs capitalize">
-                        {event.priority}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
+                  </ContextMenuTrigger>
+                  {event.type === "event" && (
+                    <ContextMenuContent>
+                      <ContextMenuItem onClick={() => updateEventPriority(event.id, "high")}>
+                        Set High Priority
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => updateEventPriority(event.id, "medium")}>
+                        Set Medium Priority
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => updateEventPriority(event.id, "low")}>
+                        Set Low Priority
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => moveEvent(event.id, "up")} disabled={index === 0}>
+                        <ChevronUp className="w-4 h-4 mr-2" />
+                        Move Up
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => moveEvent(event.id, "down")} disabled={index === selectedDateEvents.length - 1}>
+                        <ChevronDown className="w-4 h-4 mr-2" />
+                        Move Down
+                      </ContextMenuItem>
+                      <ContextMenuItem onClick={() => deleteEvent(event.id)} className="text-destructive">
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  )}
+                </ContextMenu>
               ))}
             </div>
           ) : (

@@ -159,7 +159,7 @@ const TaskList = ({ preview = false }: TaskListProps) => {
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {sortedTasks.map((task, index) => {
           const isOverdue = new Date(task.deadline) < new Date() && !task.completed;
           const getPriorityColor = (priority: string) => {
