@@ -6,6 +6,7 @@ import TaskList from "./TaskList";
 import CalendarComponent from "./Calendar";
 import Notes from "./Notes";
 import StreakTracker from "./StreakTracker";
+import ThemeToggle from "./ThemeToggle";
 
 type Tab = "overview" | "subjects" | "timer" | "tasks" | "calendar" | "notes";
 
@@ -24,8 +25,9 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 glass border-b border-border">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-primary">StudyPlanner</h1>
+          <ThemeToggle />
         </div>
       </header>
 
@@ -61,7 +63,7 @@ const Dashboard = () => {
                 </h2>
                 <PomodoroTimer compact />
               </div>
-              <div className="md:col-span-2">
+              <div className="md:col-span-2 space-y-4">
                 <TaskList preview />
               </div>
             </div>

@@ -117,31 +117,66 @@ const SubjectProgress = () => {
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium text-foreground">{subject.name}</h3>
                     <span className="text-sm text-muted-foreground">
-                      {subject.completed}/{subject.target} hours
+                      {subject.completed}/{subject.target} topics
                     </span>
                   </div>
                   <Progress value={subject.progress} className="h-3" />
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => updateProgress(subject.id, 1)}
-                      variant="secondary"
-                      size="sm"
-                    >
-                      +1h
-                    </Button>
-                    <Button
-                      onClick={() => updateProgress(subject.id, 5)}
-                      variant="secondary"
-                      size="sm"
-                    >
-                      +5h
-                    </Button>
+                  <div className="flex gap-2 items-center">
                     <Button
                       onClick={() => updateProgress(subject.id, -1)}
                       variant="outline"
                       size="sm"
                     >
-                      -1h
+                      -1
+                    </Button>
+                    <Input
+                      type="number"
+                      value={subject.completed}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 0;
+                        setSubjects(
+                          subjects.map((s) =>
+                            s.id === subject.id
+                              ? {
+                                  ...s,
+                                  completed: Math.max(0, Math.min(s.target, value)),
+                                  progress: Math.round((Math.max(0, Math.min(s.target, value)) / s.target) * 100),
+                                }
+                              : s
+                          )
+                        );
+                      }}
+                      className="w-20 text-center"
+                      min="0"
+                      max={subject.target}
+                    />
+                    <span className="text-sm text-muted-foreground">/</span>
+                    <Input
+                      type="number"
+                      value={subject.target}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 1;
+                        setSubjects(
+                          subjects.map((s) =>
+                            s.id === subject.id
+                              ? {
+                                  ...s,
+                                  target: Math.max(1, value),
+                                  progress: Math.round((s.completed / Math.max(1, value)) * 100),
+                                }
+                              : s
+                          )
+                        );
+                      }}
+                      className="w-20 text-center"
+                      min="1"
+                    />
+                    <Button
+                      onClick={() => updateProgress(subject.id, 1)}
+                      variant="secondary"
+                      size="sm"
+                    >
+                      +1
                     </Button>
                   </div>
                 </div>
